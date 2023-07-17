@@ -1,0 +1,80 @@
+# https://github.com/marketplace/actions/cfn-lint-action
+# https://github.com/marketplace/actions/cfn-security
+# https://github.com/marketplace/actions/run-taskcat-tests
+---
+name: 'Deploy to AWS CloudFormation'
+
+on: 
+  #push:
+  #  branches: [ master ]
+  #pull_request:
+  #  branches: [ master ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  # This workflow contains a single job called "deploy"
+  deploy:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - name: Checkout code from master branch
+        uses: actions/checkout@v2
+      
+      # Setup Python for taskcat
+      - name: Setup python
+        uses: actions/setup-python@v2
+
+      # Configure AWS Credential
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets._SECRET_ACCESS_KEY}}
+          aws-region: us-west-2  
+          #aws-region: ${{ github.event.inputs.region}}
+
+      # Lint AWS Cloud Formation Stack
+      - name: Setup Cloud Formation Linter with Latest Version
+        uses: scottbrenner/cfn-lint-action@v2
+
+      - name: Print the Cloud Formation Linter Version & run Linter.
+        run: |
+          cfn-lint --version
+          cfn-lint -t ./templates//**/*.template
+
+      # Check security
+      - name: Scan stack security with cfn-lint 
+        uses: grolston/cfn-security@v2
+        with:
+          cloudformation_directory: './templates/' ## change to your template directory
+          scanner: "cfn-lint" #"cfn-nag" "checkov"
+
+      # Run tests
+      - name: Run taskcat test run
+        uses: ShahradR/action-taskcat@v1
+        with:
+          commands: test run
+          update_taskcat: true
+          update_cfn_lint: true
+
+      #Save taskcat artifacts
+      #- name: Save taskcat artifacts
+      #  uses: actions/upload-artifact@v2
+      #  if: ${{ always() }}
+      #  with:
+      #    name: taskcat_outputs
+      #    path: ${{ github.workspace }}/taskcat_outputs/
+
+      # Deploy to AWS CloudFormation
+      - name: Deploy to AWS CloudFormation
+        uses: aws-actions/aws-cloudformation-github-deploy@v1
+        with:
+          name: app-stack
+          template: ./templates//**/*.template 
+          no-fail-on-empty-changeset: "1"
+          #parameter-overrides: "EC2InstanceType=t2.micro"
+          #parameter-overrides: "MyParam1=myValue,MyParam2=${{ secrets.MY_SECRET_VALUE }}"
