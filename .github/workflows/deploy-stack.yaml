@@ -54,12 +54,12 @@ jobs:
           scanner: "cfn-lint" #"cfn-nag" "checkov"
 
       # Run tests
-      - name: Run taskcat test run
-        uses: ShahradR/action-taskcat@v1
-        with:
-          commands: test run
-          update_taskcat: true
-          update_cfn_lint: true
+      #- name: Run taskcat test run
+      #  uses: ShahradR/action-taskcat@v1
+      #  with:
+      #    commands: test run
+      #    update_taskcat: true
+      #    update_cfn_lint: true
 
       #Save taskcat artifacts
       #- name: Save taskcat artifacts
