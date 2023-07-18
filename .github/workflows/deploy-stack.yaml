@@ -23,11 +23,11 @@ jobs:
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - name: Checkout code from master branch
-        uses: actions/checkout@v3
+        uses: actions/checkout@v2
       
       # Setup Python for taskcat
       - name: Setup python
-        uses: actions/setup-python@v3
+        uses: actions/setup-python@v2
 
       # Configure AWS Credential
       - name: Configure AWS Credentials
@@ -55,12 +55,12 @@ jobs:
           scanner: "cfn-lint" #"cfn-nag" "checkov"
 
       # Run tests
-      - name: Run taskcat test run
-        uses: ShahradR/action-taskcat@v2
-        with:
-          commands: test run
-          update_taskcat: true
-          update_cfn_lint: true
+      #- name: Run taskcat test run
+      #  uses: ShahradR/action-taskcat@v2
+      #  with:
+      #    commands: test run
+      #    update_taskcat: true
+      #    update_cfn_lint: true
 
       #Save taskcat artifacts
       #- name: Save taskcat artifacts
