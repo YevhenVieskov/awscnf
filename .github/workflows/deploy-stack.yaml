@@ -56,7 +56,7 @@ jobs:
 
       # Run tests
       - name: Run taskcat test run
-        uses: ShahradR/action-taskcat@v1
+        uses: ShahradR/action-taskcat@v2
         with:
           commands: test run
           update_taskcat: true
